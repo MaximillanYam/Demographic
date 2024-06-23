@@ -5,9 +5,6 @@ import java.io.*;
 public class Server {
     // Instance variables
     ServerSocket server; 
-    Socket serverSocket;
-    DataInputStream input;
-    DataOutputStream output;
 
     // Constructor 
     public Server(int port) {
@@ -21,81 +18,22 @@ public class Server {
         }
     }
 
-    // Method to register the socket input output 
-    public void registerServer(Server server) {
-        try {
-            server.input = new DataInputStream(server.serverSocket.getInputStream());
-            server.output = new DataOutputStream(server.serverSocket.getOutputStream());
-        } catch(IOException e) {
-            e.printStackTrace();
-        }
-    }
-
-    // Creating methods to write and read, close
-    public String readMessage() { 
-        try {
-            return input.readUTF();
-        }
-        catch(IOException e) {
-            System.out.println("Failed to recieve message");
-            return null;
-        }
-    }
-
-    public void sendMessage(String message) {
-        try {
-            output.writeUTF(message);
-        }
-        catch(IOException e) {
-            System.out.println("The message failed to send");
-            e.printStackTrace();
-        }
-    }
-
-    public void close() {
-        try {
-            input.close();
-            output.close();
-        }
-        catch(IOException e) {
-            System.out.println("The client socket failed to close");
-            e.printStackTrace();
-        }
-    }
-
-
-    public static void main(String[] args) {
-        
-        // Creating Server
-        Server server1 = new Server(5000); 
-        String serverResponse = "Recieved message";
-
-        while(true) {
+    public void start() {
+        while (true) {
             try {
-                // Awaiting client connection 
-                server1.serverSocket = server1.server.accept();
-                server1.registerServer(server1);
-                System.out.println("Client has connected");
-
-                // After connection, we can communicate
-                while(true) {
-                    //Read the message from the client 
-                    String clientMessage = server1.readMessage();
-                    if(clientMessage == null) {
-                        System.out.println("Client has disconnected\nAwaiting new client...");
-                        break;
-                    } else {
-                        System.out.println("Client: " + clientMessage);
-                        server1.sendMessage(serverResponse);
-                    }
-                }
-
+                Socket clientSocket = server.accept(); // wait for client to connect
+                ServerHandler handler = new ServerHandler(clientSocket);
+                new Thread(handler).start();  // start new thread to handle communication with this client
             } catch(IOException e) {
-                // Server failed to connect with the client 
-                System.out.print("Server failed to connect with the client");
+                System.out.println("Failed to accept connection");
+                e.printStackTrace();
             }
         }
+    }
 
-
+    public static void main(String[] args) {
+        // Creating Server
+        Server server1 = new Server(5000); 
+        server1.start();
     }
 }

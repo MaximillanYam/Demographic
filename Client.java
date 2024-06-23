@@ -5,9 +5,9 @@ import java.util.Scanner;
 
 public class Client {
     // Instance variables
-    Socket clientSocket; 
-    DataOutputStream output;
-    DataInputStream input;
+    private Socket clientSocket; 
+    private DataOutputStream output;
+    private DataInputStream input;
     
     // Constructor
     public Client(String address, int port) {
@@ -58,4 +58,25 @@ public class Client {
             e.printStackTrace();
         }
     }
+
+        // Method to communicate with the server 
+        public void handleServerCommunication() {
+            Scanner input = new Scanner(System.in);
+            String userInput; 
+    
+            while(true) {
+                System.out.print("Send a message to the server, 'stop' to stop: ");
+                userInput = input.nextLine();
+    
+                if(userInput.equals("stop")) {
+                    break;
+                }
+                
+                this.sendMessage(userInput);
+    
+                // Reading server confirmation
+                String serverResponse = this.readMessage();
+                System.out.println("Server: " + serverResponse);
+            }
+        }
 }
