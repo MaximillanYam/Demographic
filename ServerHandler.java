@@ -28,26 +28,31 @@ public class ServerHandler implements Runnable{
         }
     }
 
-    public void sendMessage(String message) {
+    public String sendMessage(String message) {
         try { 
             output.writeUTF(message);
+            return "Sent message";
         } catch(IOException e) {
-            
+            return null; 
         }
     } 
 
     @Override
     public void run() {
+        String serverMessage = "Send another message";
+    
         while (true) {
-            String clientMessage = readMessage();
-            if (clientMessage == null) {
-                // The client has disconnected.
+            String readStatus = readMessage();
+            if (readStatus == null) {
+                System.out.println("Server: Connection lost while reading message");
                 break;
             }
 
-            // Process the client's message and send a response.
-            String response = "Received message: " + clientMessage;
-            sendMessage(response);
+            String sendStatus = sendMessage(serverMessage);
+            if(sendStatus == null) {
+                System.out.println("Server: Connection lost while sending message");
+                break;
+            }
         }
     }
 

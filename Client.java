@@ -25,33 +25,32 @@ public class Client {
             e.printStackTrace();
         }
     }
-
   
-    // Creating methods to write and read, close
+    // Method to read message 
     public String readMessage() { 
         try {
-            return input.readUTF();
+            return input.readUTF(); // Takes socket input stream to read message 
         }
         catch(IOException e) {
-            System.out.print("Failed to recieve message");
-            e.printStackTrace();
             return null;
         }
     }
 
-    public void sendMessage(String message) {
+    // Method to send message 
+    public String sendMessage(String message) {
         try {
-            output.writeUTF(message);
+            output.writeUTF(message); // Takes socket output stream to send message
+            return "Sent message";
         }
         catch(IOException e) {
-            System.out.print("The message failed to send");
-            e.printStackTrace();
+            return null;
         }
     }
 
+    // Method to close the socket
     public void close() {
         try {
-            clientSocket.close();
+            clientSocket.close(); // Closing the socket
         }
         catch(IOException e) {
             System.out.print("The client socket failed to close");
@@ -65,18 +64,31 @@ public class Client {
             String userInput; 
     
             while(true) {
+
                 System.out.print("Send a message to the server, 'stop' to stop: ");
                 userInput = input.nextLine();
-    
+
+                // Checking if the user entered stop 
                 if(userInput.equals("stop")) {
+                    close();
                     break;
                 }
                 
-                this.sendMessage(userInput);
-    
-                // Reading server confirmation
-                String serverResponse = this.readMessage();
-                System.out.println("Server: " + serverResponse);
-            }
+                // Sending message to the server
+                String sendStatus = sendMessage(userInput);
+                if(sendStatus == null) {
+                    System.out.println("Client: Connection lost when sending message");
+                    break;
+                }
+        
+                // Reading message from the server
+                String readStatus = this.readMessage();
+                if(readStatus == null) {
+                    System.out.println("Client: Connection lost when reading message");
+                    break;
+                }
+                System.out.println("Server: " + readStatus);
+            } 
+            
         }
 }
