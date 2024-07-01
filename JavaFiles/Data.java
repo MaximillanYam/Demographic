@@ -3,16 +3,20 @@ import java.io.*;
 public class Data implements java.io.Serializable {
     // Defining the data that the client will send to the server 
     public String name; 
-    public int age;
-    public int ssn; 
+    public String age;
+    public String ssn; 
     public String operation;
 
     // Constructor
-    public Data(int ssn, String operation) {
-        this("", 0, ssn, operation);
+    public Data(String ssn, String operation) {
+        this("", "0", ssn, operation);
+    }
+
+    public Data(String name, String age, String ssn) {
+        this(name, age, ssn, "");
     }
     
-    public Data(String name, int age, int ssn, String operation) {
+    public Data(String name, String age, String ssn, String operation) {
         this.name = name;
         this.age = age;
         this.ssn = ssn; 
@@ -24,11 +28,11 @@ public class Data implements java.io.Serializable {
         return name;
     }
     
-    public int getAge() {
+    public String getAge() {
         return age;
     }
     
-    public int getSSN() {
+    public String getSSN() {
         return ssn;
     }
 

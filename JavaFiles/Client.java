@@ -65,6 +65,7 @@ public class Client {
     public boolean readFromServer() {
         String readStatus = readMessage();
         if(readStatus == null) {
+            System.out.print("Client: lost connection when reading from server");
             return true;
         } else {
             System.out.println("Server: " + readStatus);
@@ -83,35 +84,65 @@ public class Client {
 
     // Send module
     // **Have to modify the messge to sent the data object** 
-    public void sendToServer(Data object) {
+    public boolean sendToServer(Data object) {
         try {
             objectOutput.writeObject(object);
             objectOutput.flush();
-            //return true;
+            return true;
         } catch(IOException e) {
             e.printStackTrace();
-            //return false;
+            return false;
         }
     }
 
-    // Create data object 
+    // Create data object to send to the server to perform operation of database
     public Data createRow(String operation) {
         if(operation.equals("1")) {  // Adding a person
             System.out.println("Enter the persons name, age, ssn"); 
             String name = in.nextLine();
-            int age = in.nextInt();
-            in.nextLine();
-            int ssn = in.nextInt();
+            String age = in.nextLine();  
+            
+            // Checking to see if the user entered a correct age 
+            int ag = Integer.parseInt(age);
+            while(ag <= 0 || ag >= 100) {
+                System.out.println("Enter a range between (1-100) for age:");
+                age = in.nextLine();
+                ag = Integer.parseInt(age);
+            }
+
+            String ssn = in.nextLine();
+            
+            // Checking to see if the user entered a correct ssn
+            while(ssn.length() != 9) {
+                System.out.println("Enter a correct ssn ");
+                ssn = in.nextLine();
+            }
+
             String op = operation;
             return new Data(name, age, ssn, op);
         } else if(operation.equals("2")) {   // Delete a person
             System.out.println("Enter the ssn");
-            int ssn = in.nextInt();
+            String ssn = in.nextLine();
+
+            // Checking to see if the user entered a correct ssn
+            while(ssn.length() != 9) {
+                System.out.println("Enter a correct ssn ");
+                ssn = in.nextLine();
+            }
+
+
             String op = operation;
             return new Data(ssn, op);
         } else {
             System.out.println("Enter the ssn");
-            int ssn = in.nextInt();
+            String ssn = in.nextLine();
+            
+            // Checking to see if the user entered a correct ssn
+            while(ssn.length() != 9) {
+                System.out.println("Enter a correct ssn ");
+                ssn = in.nextLine();
+            }
+
             String op = operation;
             return new Data(ssn, op);
         }
@@ -120,34 +151,37 @@ public class Client {
     // Method to communicate with the server 
     public void handleServerCommunication() {
         while(true) {
-            // Reads prompt from server 
-            if(readFromServer()) {
-                close();
-                System.out.print("Client: lost connection when reading from server");
-                break;
-            }
+            // Ask the user a prompt 
+            System.out.println("Enter a choice, 1 to Add, 2 to Delete, 3 to query");
             
             // User enters choice to the prompt
             String input = getUserInput(); // Contains the number choice
+
+            if(input.equals("Stop")) {
+                break;
+            }
+
             int completed = 0;
             Data info;
 
+            // Loop to ensure that the user sends a correct choice
             while(completed != 1) { 
                 if(input.equals("1") || input.equals("2") || input.equals("3")) {
                     info = createRow(input);
-                    sendToServer(info);
-                    completed = 1;
-                    /* 
+                    
                     if(sendToServer(info)) {
-                        System.out.println("Client: Failed to send data");
-                    } else {
-                        completed = 1;
-                    }
-                    */
-                } else {
+                        System.out.println("Message successfully sent");
+                    } 
+                    
+                    completed = 1;
+                    
+                } else { 
                     input = getUserInput();
                 }
             }
+
+            // Reading response for the operation 
+            System.out.println(readMessage());
         }           
     }
 

@@ -6,6 +6,7 @@ public class ServerHandler implements Runnable{
     private DataInputStream input;
     private DataOutputStream output;
     private ObjectInputStream objectInput;
+    private static String fileName = "data.csv";
 
     // Constructor
     public ServerHandler(Socket serverSocket) {
@@ -75,21 +76,37 @@ public class ServerHandler implements Runnable{
     // Define how the thread runs when a client connects to the server
     @Override
     public void run() {
-        String serverMessage = "Choose an option\n1:Enter a person\n2:Delete a person\n3:Query a person\nEnter numbers(1-3)";
-        
+        ServerAPI API = new ServerAPI(fileName);
+
         while (true) {
-            // Sending prompt to client 
-            if(sendToClient(serverMessage)) {
-                close();
-            }
-                        
             // Reading result to the previous message
             Data clientInput = readFromClient();
-            System.out.println(clientInput.getName());
-            System.out.println(clientInput.getAge());
-            System.out.println(clientInput.getSSN());
-            System.out.println(clientInput.getOperation());
+
+            if(clientInput != null) {    
+                sendMessage("Recieved data");
+            } else {
+                sendMessage("Did not recieve data");
+            }
+            
+            if(clientInput == null) {
+                // Logic to execute operation based on the operation sent with the file 
+                String clientChoice = clientInput.getOperation();
+
+                // Swtich statement to direct the the operation 
+                switch(clientChoice) {
+                    case "1":
+                        sendMessage(API.writeRow(clientInput));
+                        break;
+                    case "2":
+                        API.deleteRow(clientInput);
+                        sendMessage("Deleted row");
+                        break;
+                    case "3":
+                        String[] query = API.searchRow(clientInput);
+                        sendMessage(String.join(",", query));
+                        break;
+                }
+            }
         }
     }
-
 }
