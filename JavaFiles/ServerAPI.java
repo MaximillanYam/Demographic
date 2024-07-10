@@ -9,6 +9,29 @@ public class ServerAPI {
         this.fileName = fileName;
     }
 
+    synchronized public String writeRowIfNotExists(Data data) {
+        // Refresh the file content before checking
+        fileTransform();
+        
+        // Check if the SSN exists
+        String[] query = searchRow(data);
+        if(query != null) {
+            return "SSN exists";
+        }
+    
+        // If the SSN doesn't exist, write the new row
+        try (BufferedWriter write = new BufferedWriter(new FileWriter(fileName, true))) {
+            write.write(String.join(",", data.getName(), data.getAge(), data.getSSN()));
+            write.newLine();
+            write.flush();
+        } catch (IOException e) {
+            e.printStackTrace();
+            return null;
+        }
+    
+        return "Wrote row";
+    }
+
     // Write method to the file
     public String writeRow(Data data) {
         try (BufferedWriter write = new BufferedWriter(new FileWriter(fileName, true))) { // true for append mode
@@ -20,6 +43,10 @@ public class ServerAPI {
             e.printStackTrace();
             return null;
         }
+
+        // Immediately read the updated file content
+        fileTransform();
+
         return "Wrote row";
     }
 
@@ -56,6 +83,7 @@ public class ServerAPI {
         // We will create a new Data that will be sent back to the user
         for (String[] row : file) {
             if (row[ssn].equals(target)) {
+                System.out.println(row);
                 return row;
             }
         }
@@ -67,7 +95,7 @@ public class ServerAPI {
     public boolean deleteRow(Data data) {
         // Searching for row
         String[] searchedResult = searchRow(data);
-        System.out.println("We reached the function deleterow");
+        System.out.println("We reached the function delete row");
 
         // Checking we found a result
         if (searchedResult != null) {
@@ -79,21 +107,19 @@ public class ServerAPI {
         return false;
     }
 
-    // Write except the included line
     public void writeExcept(String line) {
+        ArrayList<String[]> file = fileTransform();
         try (BufferedWriter write = new BufferedWriter(new FileWriter(fileName))) {
-            ArrayList<String[]> file = fileTransform();
             for (String[] row : file) {
                 String newRow = String.join(",", row);
                 if (!newRow.equals(line)) {
-                    System.out.println("Printing out this line: " + line); 
                     write.write(newRow);
                     write.newLine();
                 }
             }
-            write.flush(); // flush after writing
+            write.flush();
         } catch (IOException e) {
             e.printStackTrace();
         }
-    }    
+    }
 }

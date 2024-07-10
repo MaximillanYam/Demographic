@@ -66,7 +66,7 @@ public class ServerHandler implements Runnable {
         String sendStatus = sendMessage(input);
         return sendStatus == null;
     }
-
+/* 
     // Function to check if the ssn already exists in the csv file 
     public String ssnExist(Data clientInput) {
         String[] query = API.searchRow(clientInput);
@@ -75,7 +75,7 @@ public class ServerHandler implements Runnable {
         }
         return "1";
     }
-
+*/
     // Define how the thread runs when a client connects to the server
     @Override
     public void run() {
@@ -92,15 +92,12 @@ public class ServerHandler implements Runnable {
                 // Switch statement to direct the operation
                 switch (clientChoice) {
                     case "1":
-                        sendMessage(ssnExist(clientInput));
-                        String sLogic = ssnExist(clientInput);
-                        while(sLogic.equals("1")) {
-                            clientInput = readFromClient();
-                            sLogic = ssnExist(clientInput);
-                            sendMessage(sLogic);
+                        String result = API.writeRowIfNotExists(clientInput);
+                        if (result.equals("SSN exists")) {
+                            sendMessage("1");
+                        } else {
+                            sendMessage("0");
                         }
-
-                        sendMessage(API.writeRow(clientInput));
                         break;
                     case "2":
                         if(API.deleteRow(clientInput)) {

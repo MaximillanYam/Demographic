@@ -184,11 +184,9 @@ public class Client {
                     
                     if(info.getOperation().equals("1")) {
                         sendToServer(info);
-                        System.out.println(readMessage());
-
                         String sLogic = readMessage();
-                        System.out.println("outside while statement, logic: " + sLogic);                        
                         while(sLogic.equals("1")) {
+                            System.out.println("SSN already exists. Please enter a unique SSN.");
                             info = reRow();
                             sendToServer(info);
                             sLogic = readMessage();
@@ -196,26 +194,18 @@ public class Client {
                     } else {
                         if(sendToServer(info)) {
                             System.out.println("Server:" + readMessage());
-
                         } 
                     }
                     completed = 1;                    
                 } else { 
                     input = getUserInput();
-
+            
                     if(input.equals("stop")) {
                         swi = true;
                         break;
                     }
                 }
             }
-
-            if(swi) {
-                break;
-            }
-
-            System.out.println("We getoutside and print");
-            // Reading response for the getting the message
             System.out.println("Server:" + readMessage());
 
             // Reading response for operation done
