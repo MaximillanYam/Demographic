@@ -9,14 +9,16 @@ public class ServerAPI {
         this.fileName = fileName;
     }
 
+    // Method to check if their are duplicate ssn rows in the csv file
     synchronized public String writeRowIfNotExists(Data data) {
         // Refresh the file content before checking
-        fileTransform();
+        ArrayList<String[]> fileContent = fileTransform();
         
         // Check if the SSN exists
-        String[] query = searchRow(data);
-        if(query != null) {
-            return "SSN exists";
+        for (String[] row : fileContent) {
+            if (row[2].equals(data.getSSN())) {
+                return "SSN exists";
+            }
         }
     
         // If the SSN doesn't exist, write the new row
@@ -50,44 +52,36 @@ public class ServerAPI {
         return "Wrote row";
     }
 
-    // Convert file content to an array
     public ArrayList<String[]> fileTransform() {
         ArrayList<String[]> fileRow = new ArrayList<>();
-
-        // Reading line by line into an array list
-        // Each array is information about the row
+    
         try (BufferedReader read = new BufferedReader(new FileReader(fileName))) {
             String line;
-            // Skip headers
-            read.readLine();
             while ((line = read.readLine()) != null) {
-                fileRow.add(line.split(","));
+                String[] row = line.split(",");
+                fileRow.add(row);
+                System.out.println("Read row: " + String.join(",", row));
             }
         } catch (IOException e) {
             e.printStackTrace();
         }
-
+    
+        System.out.println("Total rows read: " + fileRow.size());
         return fileRow;
     }
 
-    // Will search for the ssn
     public String[] searchRow(Data data) {
         String target = data.getSSN();
-
-        // Calling the function to get an array list of array
-        // Each array contains the information for each row
         ArrayList<String[]> file = fileTransform();
-        int ssn = 2; // 
-
-        // If we find that the ssn matches the target value
-        // We will create a new Data that will be sent back to the user
+    
         for (String[] row : file) {
-            if (row[ssn].equals(target)) {
-                System.out.println(row);
+            if (row[2].equals(target)) {
+                System.out.println("Found matching SSN: " + String.join(",", row));
                 return row;
             }
         }
-
+    
+        System.out.println("No matching SSN found for: " + target);
         return null;
     }
 

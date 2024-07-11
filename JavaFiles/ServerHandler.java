@@ -79,6 +79,8 @@ public class ServerHandler implements Runnable {
     // Define how the thread runs when a client connects to the server
     @Override
     public void run() {
+        API.fileTransform();
+
         while (true) {
             // Reading result to the previous message
             Data clientInput = readFromClient();
