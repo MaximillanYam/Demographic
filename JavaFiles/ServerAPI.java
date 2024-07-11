@@ -20,7 +20,10 @@ public class ServerAPI {
                 return "SSN exists";
             }
         }
-    
+        
+        return writeRow(data);
+
+        /* 
         // If the SSN doesn't exist, write the new row
         try (BufferedWriter write = new BufferedWriter(new FileWriter(fileName, true))) {
             write.write(String.join(",", data.getName(), data.getAge(), data.getSSN()));
@@ -32,6 +35,7 @@ public class ServerAPI {
         }
     
         return "Wrote row";
+        */
     }
 
     // Write method to the file
@@ -89,7 +93,6 @@ public class ServerAPI {
     public boolean deleteRow(Data data) {
         // Searching for row
         String[] searchedResult = searchRow(data);
-        System.out.println("We reached the function delete row");
 
         // Checking we found a result
         if (searchedResult != null) {

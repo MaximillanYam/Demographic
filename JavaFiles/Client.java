@@ -161,8 +161,6 @@ public class Client {
 
     // Method to communicate with the server 
     public void handleServerCommunication() {
-        boolean swi = false;
-
         while(true) {
             // Ask the user a prompt 
             System.out.println("Enter a choice, 1 to Add, 2 to Delete, 3 to query");
@@ -184,6 +182,7 @@ public class Client {
                     
                     if(info.getOperation().equals("1")) {
                         sendToServer(info);
+                        System.out.println("Server: " + readMessage());
                         String sLogic = readMessage();
                         while(sLogic.equals("1")) {
                             System.out.println("SSN already exists. Please enter a unique SSN.");
@@ -201,15 +200,11 @@ public class Client {
                     input = getUserInput();
             
                     if(input.equals("stop")) {
-                        swi = true;
                         break;
                     }
                 }
             }
-            System.out.println("Server:" + readMessage());
-
-            // Reading response for operation done
-            //System.out.println("Server:" + readMessage());
+           
         }           
     }
 }
